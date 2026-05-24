@@ -1,0 +1,222 @@
+<div id="usjpMasterSafe">
+<style>
+#usjpMasterSafe{font-family:Arial,sans-serif;background:#eef6ff;color:#111827;padding:12px;width:100%;max-width:100%;overflow-x:hidden}
+#usjpMasterSafe *{box-sizing:border-box;max-width:100%}
+#usjpMasterSafe .top{background:linear-gradient(90deg,#064f9e,#032b57);color:white;border-bottom:6px solid #d71920;padding:16px;border-radius:16px;margin-bottom:12px}
+#usjpMasterSafe .card{background:white;border:1px solid #d9e2ef;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+#usjpMasterSafe button{width:100%;border:0;border-radius:10px;padding:12px;margin:4px 0;background:#064f9e;color:white;font-weight:900;cursor:pointer}
+#usjpMasterSafe .red{background:#d71920}
+#usjpMasterSafe .green{background:#16a34a}
+#usjpMasterSafe .yellow{background:#f59e0b;color:black}
+#usjpMasterSafe input,#usjpMasterSafe textarea{width:100%;padding:10px;margin:6px 0 12px;border:1px solid #cbd5e1;border-radius:10px}
+#usjpMasterSafe textarea{min-height:90px}
+#usjpMasterSafe .section{display:none}
+#usjpMasterSafe .section.active{display:block}
+#usjpMasterSafe .notice{padding:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;margin:10px 0}
+#usjpMasterSafe .data-card{border-left:5px solid #064f9e}
+#usjpMasterSafe .badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:11px;font-weight:900}
+#supportBox{display:none}
+@media(min-width:900px){#usjpMasterSafe .layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}}
+</style>
+<div class="top">
+  <h2>USJP Master Portal Control Center</h2>
+  <p>Employee Login</p>
+  <button id="logoutBtn" class="red" onclick="logout()" style="display:none;">Logout</button>
+</div>
+<div id="loginBox" class="card">
+  <h2>Secured System</h2>
+  <div class="notice">Notice! You must have a USJP Master Portal Control Center employee account to access this system. Employee accounts are created by system administrators.
+  
+<input id="masterEmail" type="email" placeholder="Employee Email">
+  <input id="masterPassword" type="password" placeholder="Password">
+  <button class="green" onclick="loginMaster()">System Login</button>
+  <div class="notice">
+    Please contact master portal support if you experience login issues.
+    <button class="yellow" onclick="toggleSupport()">Contact Support</button>
+  </div>
+  <div id="supportBox" class="card">
+    <h3>Master Portal Support Ticket</h3>
+    <input id="supportName" placeholder="Your Name">
+    <input id="supportPhone" placeholder="Your Phone">
+    <input id="supportEmail" placeholder="Your Email">
+    <textarea id="supportIssue" placeholder="Describe the issue"></textarea>
+    <button class="green" onclick="submitSupportTicket()">Submit Support Ticket</button>
+  </div>
+  <div id="loginMsg"></div>
+</div>
+<div id="portalBox" style="display:none">
+  <div class="layout">
+    <div class="card">
+      <button onclick="showSec('dash')">Dashboard</button>
+      <button onclick="showSec('apps')">Partner Applications</button>
+      <button onclick="showSec('partners')">Partners</button>
+      <button onclick="showSec('jobs')">Jobs</button>
+      <button onclick="showSec('tickets')">Support Tickets</button>
+      <button onclick="loadAll()">Refresh Cloud Data</button>
+    </div>
+    <div>
+      <section class="section active" id="dash"><div class="card"><h2>Dashboard</h2><div id="dashData">Loading...</div></div></section>
+      <section class="section" id="apps"><div class="card"><h2>Partner Applications</h2><div id="appsData"></div></div></section>
+      <section class="section" id="partners"><div class="card"><h2>Partners</h2><div id="partnersData"></div></div></section>
+      <section class="section" id="jobs"><div class="card"><h2>Jobs</h2><div id="jobsData"></div></div></section>
+      <section class="section" id="tickets"><div class="card"><h2>Support Tickets</h2><div id="ticketsData"></div></div></section>
+    </div>
+  </div>
+</div>
+<script>
+const API_KEY="AIzaSyBsjuByq1OY2JmWXx2FjmnC6jyXqi7OpkE";
+const PROJECT="us-junk-pros";
+const BASE="https://firestore.googleapis.com/v1/projects/"+PROJECT+"/databases/(default)/documents";
+let idToken=localStorage.getItem("usjp_idToken")||"";
+let uid=localStorage.getItem("usjp_uid")||"";
+let apps=[],partners=[],jobs=[],tickets=[];
+function safe(v){return String(v||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]})}
+function badge(t){return '<span class="badge">'+safe(t)+'</span>'}
+function showSec(id){document.querySelectorAll("#usjpMasterSafe .section").forEach(function(s){s.classList.remove("active")});document.getElementById(id).classList.add("active")}
+function toggleSupport(){document.getElementById("supportBox").style.display=document.getElementById("supportBox").style.display==="block"?"none":"block"}
+function logout(){
+  localStorage.removeItem("usjp_idToken");
+  localStorage.removeItem("usjp_uid");
+  localStorage.removeItem("usjp_session");
+  idToken="";
+  uid="";
+  document.getElementById("portalBox").style.display="none";
+  document.getElementById("loginBox").style.display="block";
+  document.getElementById("logoutBtn").style.display="none";
+  document.getElementById("masterPassword").value="";
+  document.getElementById("loginMsg").innerHTML='<div class="notice">You have been logged out.</div>';
+}
+function valFromFS(v){
+  if(!v)return "";
+  if(v.stringValue!==undefined)return v.stringValue;
+  if(v.integerValue!==undefined)return Number(v.integerValue);
+  if(v.doubleValue!==undefined)return Number(v.doubleValue);
+  if(v.booleanValue!==undefined)return v.booleanValue;
+  if(v.timestampValue!==undefined)return v.timestampValue;
+  if(v.arrayValue!==undefined)return (v.arrayValue.values||[]).map(valFromFS);
+  return "";
+}
+function docFromFS(d){let o={id:(d.name||"").split("/").pop()};let f=d.fields||{};Object.keys(f).forEach(function(k){o[k]=valFromFS(f[k])});return o}
+function fsValue(v){if(Array.isArray(v))return {arrayValue:{values:v.map(function(x){return fsValue(x)})}};if(typeof v==="boolean")return {booleanValue:v};if(typeof v==="number")return {doubleValue:v};return {stringValue:String(v==null?"":v)}}
+function fsFields(obj){let fields={};Object.keys(obj).forEach(function(k){fields[k]=fsValue(obj[k])});return {fields:fields}}
+async function fb(path,opts){
+  opts=opts||{};
+  let r=await fetch(BASE+path,{method:opts.method||"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+idToken},body:opts.body});
+  if(!r.ok)throw new Error(await r.text());
+  return await r.json();
+}
+async function fbPublic(path,opts){
+  opts=opts||{};
+  let r=await fetch(BASE+path,{method:opts.method||"GET",headers:{"Content-Type":"application/json"},body:opts.body});
+  if(!r.ok)throw new Error(await r.text());
+  return await r.json();
+}
+async function getCol(name){let data=await fb("/"+name);return (data.documents||[]).map(docFromFS)}
+async function addDoc(col,obj){return await fb("/"+col,{method:"POST",body:JSON.stringify(fsFields(obj))})}
+async function addPublicDoc(col,obj){return await fbPublic("/"+col,{method:"POST",body:JSON.stringify(fsFields(obj))})}
+async function patchDoc(col,id,obj){let masks=Object.keys(obj).map(function(k){return "updateMask.fieldPaths="+encodeURIComponent(k)}).join("&");return await fb("/"+col+"/"+id+"?"+masks,{method:"PATCH",body:JSON.stringify(fsFields(obj))})}
+async function loginMaster(){
+  let email=document.getElementById("masterEmail").value.trim();
+  let password=document.getElementById("masterPassword").value;
+  document.getElementById("loginMsg").innerHTML='<div class="notice">Checking employee credentials...</div>';
+  try{
+    let res=await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="+API_KEY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email,password:password,returnSecureToken:true})});
+    let data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    idToken=data.idToken;
+    uid=data.localId;
+    let userDoc=await fb("/users/"+uid);
+    let profile=docFromFS(userDoc);
+    if(profile.role!=="master")throw new Error("Access denied.");
+    localStorage.setItem("usjp_idToken",idToken);
+    localStorage.setItem("usjp_uid",uid);
+    localStorage.setItem("usjp_session",JSON.stringify({uid:uid,role:"master",email:email}));
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("portalBox").style.display="block";
+    document.getElementById("logoutBtn").style.display="block";
+    await loadAll();
+  }catch(e){
+    document.getElementById("loginMsg").innerHTML='<div class="notice"><b>Login failed:</b><br>'+safe(e.message)+'</div>';
+  }
+}
+async function submitSupportTicket(){
+  let name=document.getElementById("supportName").value.trim();
+  let phone=document.getElementById("supportPhone").value.trim();
+  let email=document.getElementById("supportEmail").value.trim();
+  let issue=document.getElementById("supportIssue").value.trim();
+  if(!name||!phone||!issue){alert("Name, phone, and issue are required.");return}
+  try{
+    await addPublicDoc("supportTickets",{type:"Master Portal Support",routeTo:"master",name:name,phone:phone,email:email,issue:issue,status:"Open",created:new Date().toISOString(),source:"/master"});
+    document.getElementById("supportName").value="";
+    document.getElementById("supportPhone").value="";
+    document.getElementById("supportEmail").value="";
+    document.getElementById("supportIssue").value="";
+    alert("Support ticket submitted.");
+    toggleSupport();
+  }catch(e){
+    alert("Support ticket failed.");
+  }
+}
+async function autoStart(){
+  if(!idToken||!uid)return;
+  try{
+    let userDoc=await fb("/users/"+uid);
+    let profile=docFromFS(userDoc);
+    if(profile.role==="master"){
+      document.getElementById("loginBox").style.display="none";
+      document.getElementById("portalBox").style.display="block";
+      document.getElementById("logoutBtn").style.display="block";
+      await loadAll();
+    }
+  }catch(e){
+    localStorage.removeItem("usjp_idToken");
+    localStorage.removeItem("usjp_uid");
+  }
+}
+async function loadAll(){
+  document.getElementById("dashData").innerHTML="Loading cloud data...";
+  try{
+    apps=await getCol("partnerApplications");
+    partners=await getCol("partners");
+    jobs=await getCol("jobs");
+    tickets=await getCol("supportTickets");
+    render();
+  }catch(e){
+    document.getElementById("dashData").innerHTML='<div class="notice"><b>Could not load cloud data.</b></div>';
+  }
+}
+function render(){
+  document.getElementById("dashData").innerHTML=
+    '<div class="card data-card"><h3>Applications</h3><h1>'+apps.length+'</h1></div>'+
+    '<div class="card data-card"><h3>Partners</h3><h1>'+partners.length+'</h1></div>'+
+    '<div class="card data-card"><h3>Jobs</h3><h1>'+jobs.length+'</h1></div>'+
+    '<div class="card data-card"><h3>Open Tickets</h3><h1>'+tickets.filter(function(t){return t.status!=="Closed"}).length+'</h1></div>';
+  document.getElementById("appsData").innerHTML=apps.length?apps.map(function(a,i){
+    return '<div class="card data-card"><h3>'+safe(a.business)+'</h3><p><b>Owner:</b> '+safe(a.owner)+'</p><p><b>Phone:</b> '+safe(a.phone)+'</p><p><b>Email:</b> '+safe(a.email)+'</p><p><b>ZIPs:</b> '+safe(a.zip)+' '+safe(a.serviceZips)+'</p><p><b>Services:</b> '+safe(a.services)+'</p><p><b>Status:</b> '+badge(a.status||"Pending")+'</p><button class="green" onclick="approveApp('+i+')">Approve Partner</button><button class="yellow" onclick="setAppStatus('+i+',\'Under Review\')">Under Review</button><button class="red" onclick="setAppStatus('+i+',\'Rejected\')">Reject</button></div>';
+  }).join(""):"<p>No applications yet.</p>";
+  document.getElementById("partnersData").innerHTML=partners.length?partners.map(function(p,i){
+    return '<div class="card data-card"><h3>'+safe(p.business)+'</h3><p><b>Owner:</b> '+safe(p.owner)+'</p><p><b>Email:</b> '+safe(p.email)+'</p><p><b>ZIPs:</b> '+safe(p.zip)+' '+safe(p.serviceZips)+'</p><p><b>Status:</b> '+badge(p.active!==false?"Active":"Inactive")+'</p><label>Username</label><input id="pUser'+i+'" value="'+safe(p.username)+'"><label>Password</label><input id="pPass'+i+'" value="'+safe(p.password)+'"><button class="green" onclick="savePartner('+i+')">Save Partner Login</button></div>';
+  }).join(""):"<p>No partners yet.</p>";
+  document.getElementById("jobsData").innerHTML=jobs.length?jobs.map(function(j){
+    return '<div class="card data-card"><h3>Job '+safe(j.id)+'</h3><p><b>Customer:</b> '+safe(j.customerName)+'</p><p><b>Phone:</b> '+safe(j.customerPhone)+'</p><p><b>Email:</b> '+safe(j.customerEmail)+'</p><p><b>Address:</b> '+safe(j.address)+'</p><p><b>Status:</b> '+badge(j.status)+'</p></div>';
+  }).join(""):"<p>No jobs yet.</p>";
+  document.getElementById("ticketsData").innerHTML=tickets.length?tickets.map(function(t,i){
+    return '<div class="card data-card"><h3>'+safe(t.type||"Support Ticket")+'</h3><p><b>Status:</b> '+badge(t.status||"Open")+'</p><p><b>Name:</b> '+safe(t.name)+'</p><p><b>Email:</b> '+safe(t.email)+'</p><p><b>Issue:</b> '+safe(t.issue)+'</p><textarea id="ticketNote'+i+'" placeholder="Resolution notes">'+safe(t.resolution||"")+'</textarea><button class="green" onclick="resolveTicket('+i+')">Resolve Ticket</button></div>';
+  }).join(""):"<p>No tickets yet.</p>";
+}
+function makeUser(name){return String(name||"partner").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,12)||"partner"}
+async function approveApp(i){
+  let a=apps[i];
+  let username=makeUser(a.business);
+  let password="partner"+Date.now().toString().slice(-5);
+  await addDoc("partners",{applicationId:a.id,business:a.business||"",owner:a.owner||"",phone:a.phone||"",email:a.email||"",zip:a.zip||"",serviceZips:a.serviceZips||"",services:a.services||"",username:username,password:password,active:true,created:new Date().toISOString()});
+  await patchDoc("partnerApplications",a.id,{status:"Approved",approvedAt:new Date().toISOString()});
+  alert("Partner approved. Login: "+username+" / "+password);
+  loadAll();
+}
+async function setAppStatus(i,status){await patchDoc("partnerApplications",apps[i].id,{status:status});loadAll()}
+async function savePartner(i){await patchDoc("partners",partners[i].id,{username:document.getElementById("pUser"+i).value.trim(),password:document.getElementById("pPass"+i).value.trim()});alert("Partner credentials saved.");loadAll()}
+async function resolveTicket(i){await patchDoc("supportTickets",tickets[i].id,{status:"Closed",resolution:document.getElementById("ticketNote"+i).value,resolvedAt:new Date().toISOString()});loadAll()}
+autoStart();
+</script>
+</div>
