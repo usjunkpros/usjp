@@ -4,32 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>USJP Master Portal Control Center</title>
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-body{background:#eef2f7;color:#1f2937}
-.topbar{background:#0b0f19;color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #d71920}
-.logo{font-size:26px;font-weight:900}.logo span{color:#3b82f6}
-.header{background:linear-gradient(90deg,#0f4fa8,#012b66);color:#fff;padding:32px 24px}
-.header h1{font-size:30px;margin-bottom:8px}.header p{font-size:15px;opacity:.92}
-.container{width:94%;max-width:1300px;margin:24px auto}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-.card{background:#fff;border-radius:16px;padding:22px;box-shadow:0 4px 16px rgba(0,0,0,.08);margin-bottom:18px}
-.card h2{font-size:22px;margin-bottom:14px}
-.stat{font-size:34px;font-weight:900;color:#0f4fa8}
-.nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:22px 0}
-button{border:0;border-radius:12px;padding:13px;font-weight:800;cursor:pointer;background:#0f4fa8;color:white;width:100%;margin:4px 0}
+body{background:#eef2f7;color:#111827}
+.topbar{background:#050505;color:white;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #d71920}
+.logo{font-size:26px;font-weight:900}.logo span{color:#1d70c9}
+.header{background:linear-gradient(90deg,#0b559f,#022b58);color:white;padding:30px 22px}
+.header h1{font-size:26px;margin-bottom:6px}.header p{font-size:14px;opacity:.9}
+.container{width:94%;max-width:1300px;margin:22px auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+.card{background:white;border-radius:16px;padding:18px;box-shadow:0 4px 14px rgba(0,0,0,.08);margin-bottom:16px}
+.stat{font-size:30px;font-weight:900;color:#0b559f}
+.nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:18px 0}
+button{border:0;border-radius:12px;padding:13px;font-weight:800;background:#0b559f;color:white;cursor:pointer;width:100%;margin:4px 0}
 .red{background:#dc2626}.green{background:#16a34a}.yellow{background:#f59e0b;color:#111827}
 .section{display:none}.section.active{display:block}
 input,textarea,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;margin:6px 0 12px;font-size:15px}
-textarea{min-height:90px}
-.item{border-left:5px solid #0f4fa8;padding:14px;background:#f8fafc;border-radius:12px;margin:12px 0}
-.badge{display:inline-block;background:#dbeafe;color:#1e40af;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900}
-.notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:14px;margin:12px 0}
+textarea{min-height:85px}
+.item{background:#f8fafc;border-left:5px solid #0b559f;border-radius:12px;padding:13px;margin:10px 0}
+.badge{display:inline-block;background:#dbeafe;color:#1e40af;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900}
+.notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:13px;margin:10px 0}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .footer{text-align:center;color:#64748b;font-size:13px;padding:25px}
 </style>
 </head>
-
 <body>
 
 <div class="topbar">
@@ -39,53 +37,134 @@ textarea{min-height:90px}
 
 <div class="header">
   <h1>USJP Master Portal Control Center</h1>
-  <p>Nationwide Operations • Dispatch • Partners • Customers • Trucks • Support</p>
+  <p>Customers • Partners • Trucks • Jobs • Dispatch • GPS • Messaging • Support</p>
 </div>
 
 <div class="container">
 
-<div class="grid">
-  <div class="card"><h2>Customers</h2><div class="stat" id="customerCount">0</div></div>
-  <div class="card"><h2>Partners</h2><div class="stat" id="partnerCount">0</div></div>
-  <div class="card"><h2>Trucks</h2><div class="stat" id="truckCount">0</div></div>
-  <div class="card"><h2>Jobs</h2><div class="stat" id="jobCount">0</div></div>
-  <div class="card"><h2>Open Tickets</h2><div class="stat" id="ticketCount">0</div></div>
+<div class="stats">
+  <div class="card"><h3>Customers</h3><div class="stat" id="customerCount">0</div></div>
+  <div class="card"><h3>Partners</h3><div class="stat" id="partnerCount">0</div></div>
+  <div class="card"><h3>Trucks</h3><div class="stat" id="truckCount">0</div></div>
+  <div class="card"><h3>Jobs</h3><div class="stat" id="jobCount">0</div></div>
+  <div class="card"><h3>Open Tickets</h3><div class="stat" id="ticketCount">0</div></div>
 </div>
 
 <div class="nav">
   <button onclick="showSection('dashboard')">Dashboard</button>
-  <button onclick="showSection('applications')">Applications</button>
+  <button onclick="showSection('applications')">Partner Applications</button>
   <button onclick="showSection('customers')">Customers</button>
   <button onclick="showSection('partners')">Partners</button>
   <button onclick="showSection('trucks')">Trucks</button>
-  <button onclick="showSection('jobs')">Jobs / Dispatch</button>
-  <button onclick="showSection('messages')">Messages</button>
+  <button onclick="showSection('jobs')">Jobs</button>
+  <button onclick="showSection('dispatch')">Dispatch</button>
   <button onclick="showSection('gps')">GPS Tracking</button>
+  <button onclick="showSection('messages')">Messaging</button>
   <button onclick="showSection('tickets')">Support Tickets</button>
-  <button onclick="showSection('employees')">Employees</button>
+  <button onclick="showSection('employees')">Employee Accounts</button>
   <button class="red" onclick="logout()">Logout</button>
 </div>
 
-<section id="dashboard" class="section active"><div class="card"><h2>Dashboard</h2><div id="dashboardData" class="notice">Loading...</div></div></section>
-<section id="applications" class="section"><div class="card"><h2>Partner Applications</h2><div id="applicationsData"></div></div></section>
-<section id="customers" class="section"><div class="card"><h2>Customer Directory</h2><div id="customersData"></div></div></section>
-<section id="partners" class="section"><div class="card"><h2>Partner Directory</h2><div id="partnersData"></div></div></section>
-<section id="trucks" class="section"><div class="card"><h2>Truck Fleet Directory</h2><div id="trucksData"></div></div></section>
-<section id="jobs" class="section"><div class="card"><h2>Jobs / Dispatch Center</h2><div id="jobsData"></div></div></section>
-<section id="messages" class="section"><div class="card"><h2>Messaging Center</h2><div id="messagesData"></div></div></section>
-<section id="gps" class="section"><div class="card"><h2>GPS Tracking</h2><div id="gpsData"></div></div></section>
-<section id="tickets" class="section"><div class="card"><h2>Support Tickets</h2><div id="ticketsData"></div></div></section>
+<section id="dashboard" class="section active">
+<div class="card"><h2>Dashboard</h2><div id="dashboardData" class="notice">Loading cloud data...</div></div>
+</section>
+
+<section id="applications" class="section">
+<div class="card"><h2>Partner Applications</h2><div id="applicationsData"></div></div>
+</section>
+
+<section id="customers" class="section">
+<div class="card">
+<h2>Add Customer</h2>
+<div class="formgrid">
+<input id="cName" placeholder="Customer Name">
+<input id="cPhone" placeholder="Phone">
+<input id="cEmail" placeholder="Email">
+<input id="cAddress" placeholder="Address">
+<input id="cZip" placeholder="ZIP Code">
+</div>
+<button class="green" onclick="addCustomer()">Add Customer</button>
+</div>
+<div class="card"><h2>Customer Directory</h2><div id="customersData"></div></div>
+</section>
+
+<section id="partners" class="section">
+<div class="card">
+<h2>Add Partner</h2>
+<div class="formgrid">
+<input id="pBusiness" placeholder="Business Name">
+<input id="pOwner" placeholder="Owner Name">
+<input id="pPhone" placeholder="Phone">
+<input id="pEmail" placeholder="Email">
+<input id="pZips" placeholder="Service ZIP Codes">
+</div>
+<button class="green" onclick="addPartner()">Add Partner</button>
+</div>
+<div class="card"><h2>Partner Directory</h2><div id="partnersData"></div></div>
+</section>
+
+<section id="trucks" class="section">
+<div class="card">
+<h2>Add Truck</h2>
+<div class="formgrid">
+<input id="tName" placeholder="Truck Name / Unit Number">
+<input id="tDriver" placeholder="Driver / Crew Lead">
+<input id="tPhone" placeholder="Driver Phone">
+<select id="tPartner"></select>
+</div>
+<button class="green" onclick="addTruck()">Add Truck</button>
+</div>
+<div class="card"><h2>Truck Fleet</h2><div id="trucksData"></div></div>
+</section>
+
+<section id="jobs" class="section">
+<div class="card">
+<h2>Create Job</h2>
+<div class="formgrid">
+<input id="jCustomer" placeholder="Customer Name">
+<input id="jPhone" placeholder="Customer Phone">
+<input id="jAddress" placeholder="Job Address">
+<input id="jZip" placeholder="ZIP Code">
+<input id="jService" placeholder="Service Type">
+<select id="jPartner"></select>
+<select id="jTruck"></select>
+</div>
+<button class="green" onclick="addJob()">Create Job</button>
+</div>
+<div class="card"><h2>Jobs</h2><div id="jobsData"></div></div>
+</section>
+
+<section id="dispatch" class="section">
+<div class="card"><h2>Dispatch Center</h2><div id="dispatchData"></div></div>
+</section>
+
+<section id="gps" class="section">
+<div class="card">
+<h2>GPS Tracking Records</h2>
+<div id="gpsData"></div>
+</div>
+</section>
+
+<section id="messages" class="section">
+<div class="card">
+<h2>Send Message</h2>
+<input id="mTo" placeholder="To / Channel">
+<textarea id="mText" placeholder="Message"></textarea>
+<button class="green" onclick="sendMessage()">Send Message</button>
+</div>
+<div class="card"><h2>Message History</h2><div id="messagesData"></div></div>
+</section>
+
+<section id="tickets" class="section">
+<div class="card"><h2>Support Tickets</h2><div id="ticketsData"></div></div>
+</section>
 
 <section id="employees" class="section">
 <div class="card">
 <h2>Create Employee Account</h2>
-<div class="notice">Create internal USJP Master Portal Control Center employee accounts.</div>
-<input id="empEmail" type="email" placeholder="Employee Email">
+<input id="empEmail" placeholder="Employee Email">
 <input id="empPassword" type="password" placeholder="Temporary Password">
-<select id="empRole">
-<option value="master">Master Admin</option>
-<option value="staff">Internal Staff</option>
-</select>
+<select id="empRole"><option value="master">Master Admin</option><option value="staff">Staff</option></select>
 <button class="green" onclick="createEmployee()">Create Employee</button>
 <div id="employeeData"></div>
 </div>
@@ -101,13 +180,13 @@ textarea{min-height:90px}
 
 <script>
 const firebaseConfig={
-  apiKey:"AIzaSyBsjuByq1OY2JmWXx2FjmnC6jyXqi7OpkE",
-  authDomain:"us-junk-pros.firebaseapp.com",
-  projectId:"us-junk-pros",
-  storageBucket:"us-junk-pros.firebasestorage.app",
-  messagingSenderId:"342886642933",
-  appId:"1:342886642933:web:fb5ab4c136834ec72b01bc",
-  measurementId:"G-JY6GPJ7Z8G"
+apiKey:"AIzaSyBsjuByq1OY2JmWXx2FjmnC6jyXqi7OpkE",
+authDomain:"us-junk-pros.firebaseapp.com",
+projectId:"us-junk-pros",
+storageBucket:"us-junk-pros.firebasestorage.app",
+messagingSenderId:"342886642933",
+appId:"1:342886642933:web:fb5ab4c136834ec72b01bc",
+measurementId:"G-JY6GPJ7Z8G"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -116,190 +195,116 @@ const db=firebase.firestore();
 
 let customers=[],partners=[],trucks=[],jobs=[],messages=[],tickets=[],applications=[],employees=[];
 
-function safe(v){return String(v||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]})}
+function safe(v){return String(v||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
 function badge(v){return '<span class="badge">'+safe(v||"Pending")+'</span>'}
 
 function showSection(id){
-  document.querySelectorAll(".section").forEach(function(s){s.classList.remove("active")});
-  document.getElementById(id).classList.add("active");
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
 }
 
-function logout(){
-  auth.signOut().then(function(){window.location.href="./index.html"});
-}
+function logout(){auth.signOut().then(()=>location.href="./index.html")}
 
 function renderCounts(){
-  customerCount.innerText=customers.length;
-  partnerCount.innerText=partners.length;
-  truckCount.innerText=trucks.length;
-  jobCount.innerText=jobs.length;
-  ticketCount.innerText=tickets.filter(t=>t.status!=="Closed").length;
+customerCount.innerText=customers.length;
+partnerCount.innerText=partners.length;
+truckCount.innerText=trucks.length;
+jobCount.innerText=jobs.length;
+ticketCount.innerText=tickets.filter(t=>t.status!=="Closed").length;
+}
+
+function renderSelectors(){
+tPartner.innerHTML='<option value="">Assign Partner</option>'+partners.map(p=>'<option value="'+p.id+'">'+safe(p.business)+'</option>').join("");
+jPartner.innerHTML='<option value="">Assign Partner</option>'+partners.map(p=>'<option value="'+p.id+'">'+safe(p.business)+'</option>').join("");
+jTruck.innerHTML='<option value="">Assign Truck</option>'+trucks.map(t=>'<option value="'+t.id+'">'+safe(t.truckName||t.driver)+'</option>').join("");
 }
 
 function renderDashboard(){
-  dashboardData.innerHTML=
-  "<b>Cloud system connected.</b><br><br>"+
-  "<b>Active Jobs:</b> "+jobs.filter(j=>j.completed!==true).length+"<br>"+
-  "<b>Available Trucks:</b> "+trucks.filter(t=>t.available!==false).length+"<br>"+
-  "<b>Pending Applications:</b> "+applications.filter(a=>a.status!=="Approved").length+"<br>"+
-  "<b>Open Tickets:</b> "+tickets.filter(t=>t.status!=='Closed').length;
+dashboardData.innerHTML="<b>Cloud connected.</b><br><br>Active Jobs: "+jobs.length+"<br>Available Trucks: "+trucks.filter(t=>t.available!==false).length+"<br>Partners: "+partners.length+"<br>Open Tickets: "+tickets.filter(t=>t.status!=='Closed').length;
 }
 
 function renderApplications(){
-  applicationsData.innerHTML=applications.length?applications.map(function(a){
-    return '<div class="item"><h3>'+safe(a.business||"Unnamed Business")+'</h3>'+
-    '<p><b>Owner:</b> '+safe(a.owner)+'</p>'+
-    '<p><b>Email:</b> '+safe(a.email)+'</p>'+
-    '<p><b>Phone:</b> '+safe(a.phone)+'</p>'+
-    '<p><b>ZIPs:</b> '+safe(a.zip)+' '+safe(a.serviceZips)+'</p>'+
-    '<p><b>Services:</b> '+safe(a.services)+'</p>'+
-    '<p><b>Status:</b> '+badge(a.status)+'</p>'+
-    '<button class="green" onclick="approveApplication(\''+a.id+'\')">Approve Partner</button>'+
-    '<button class="yellow" onclick="markApplication(\''+a.id+'\',\'Under Review\')">Under Review</button>'+
-    '<button class="red" onclick="markApplication(\''+a.id+'\',\'Rejected\')">Reject</button></div>';
-  }).join(""):"<p>No applications found.</p>";
+applicationsData.innerHTML=applications.length?applications.map(a=>
+'<div class="item"><h3>'+safe(a.business||"Application")+'</h3><p><b>Owner:</b> '+safe(a.owner)+'</p><p><b>Email:</b> '+safe(a.email)+'</p><p><b>Phone:</b> '+safe(a.phone)+'</p><p><b>Status:</b> '+badge(a.status)+'</p><button class="green" onclick="approveApplication(\''+a.id+'\')">Approve</button><button class="red" onclick="updateApplication(\''+a.id+'\',\'Rejected\')">Reject</button></div>'
+).join(""):"<p>No applications found.</p>";
 }
 
 function renderCustomers(){
-  customersData.innerHTML=customers.length?customers.map(c=>
-  '<div class="item"><h3>'+safe(c.name||c.customerName||"Customer")+'</h3>'+
-  '<p><b>Email:</b> '+safe(c.email||c.customerEmail)+'</p>'+
-  '<p><b>Phone:</b> '+safe(c.phone||c.customerPhone)+'</p>'+
-  '<p><b>Status:</b> '+badge(c.status||"Active")+'</p></div>'
-  ).join(""):"<p>No customers found.</p>";
+customersData.innerHTML=customers.length?customers.map(c=>
+'<div class="item"><h3>'+safe(c.name)+'</h3><p><b>Phone:</b> '+safe(c.phone)+'</p><p><b>Email:</b> '+safe(c.email)+'</p><p><b>Address:</b> '+safe(c.address)+'</p><p><b>ZIP:</b> '+safe(c.zip)+'</p></div>'
+).join(""):"<p>No customers found.</p>";
 }
 
 function renderPartners(){
-  partnersData.innerHTML=partners.length?partners.map(p=>
-  '<div class="item"><h3>'+safe(p.business||"Partner")+'</h3>'+
-  '<p><b>Owner:</b> '+safe(p.owner)+'</p>'+
-  '<p><b>Email:</b> '+safe(p.email)+'</p>'+
-  '<p><b>Phone:</b> '+safe(p.phone)+'</p>'+
-  '<p><b>Service ZIPs:</b> '+safe(p.zip)+' '+safe(p.serviceZips)+'</p>'+
-  '<p><b>Status:</b> '+badge(p.active===false?"Inactive":"Active")+'</p>'+
-  '<button onclick="togglePartner(\''+p.id+'\','+(p.active===false?'true':'false')+')">'+(p.active===false?"Activate":"Deactivate")+'</button></div>'
-  ).join(""):"<p>No partners found.</p>";
+partnersData.innerHTML=partners.length?partners.map(p=>
+'<div class="item"><h3>'+safe(p.business)+'</h3><p><b>Owner:</b> '+safe(p.owner)+'</p><p><b>Phone:</b> '+safe(p.phone)+'</p><p><b>Email:</b> '+safe(p.email)+'</p><p><b>ZIPs:</b> '+safe(p.serviceZips)+'</p><p><b>Status:</b> '+badge(p.active===false?"Inactive":"Active")+'</p><button onclick="togglePartner(\''+p.id+'\','+(p.active===false?'true':'false')+')">'+(p.active===false?"Activate":"Deactivate")+'</button></div>'
+).join(""):"<p>No partners found.</p>";
 }
 
 function renderTrucks(){
-  trucksData.innerHTML=trucks.length?trucks.map(t=>
-  '<div class="item"><h3>'+safe(t.truckName||t.truck||"Truck")+'</h3>'+
-  '<p><b>Lead:</b> '+safe(t.leadName||t.driver)+'</p>'+
-  '<p><b>Phone:</b> '+safe(t.phone)+'</p>'+
-  '<p><b>Status:</b> '+badge(t.available===false?"Busy":"Available")+'</p>'+
-  '<p><b>Current Job:</b> '+safe(t.currentJobId||"None")+'</p></div>'
-  ).join(""):"<p>No trucks found.</p>";
+trucksData.innerHTML=trucks.length?trucks.map(t=>
+'<div class="item"><h3>'+safe(t.truckName)+'</h3><p><b>Driver:</b> '+safe(t.driver)+'</p><p><b>Phone:</b> '+safe(t.phone)+'</p><p><b>Status:</b> '+badge(t.available===false?"Busy":"Available")+'</p><p><b>Current Job:</b> '+safe(t.currentJobId||"None")+'</p><button onclick="toggleTruck(\''+t.id+'\','+(t.available===false?'true':'false')+')">'+(t.available===false?"Mark Available":"Mark Busy")+'</button></div>'
+).join(""):"<p>No trucks found.</p>";
 }
 
 function renderJobs(){
-  jobsData.innerHTML=jobs.length?jobs.map(j=>
-  '<div class="item"><h3>Job '+safe(j.id)+'</h3>'+
-  '<p><b>Customer:</b> '+safe(j.customerName)+'</p>'+
-  '<p><b>Phone:</b> '+safe(j.customerPhone)+'</p>'+
-  '<p><b>Address:</b> '+safe(j.address)+'</p>'+
-  '<p><b>Service:</b> '+safe(j.projectType)+'</p>'+
-  '<p><b>Status:</b> '+badge(j.status)+'</p></div>'
-  ).join(""):"<p>No jobs found.</p>";
-}
-
-function renderMessages(){
-  messagesData.innerHTML=messages.length?messages.map(m=>
-  '<div class="item"><p><b>'+safe(m.fromName||m.fromRole||"System")+':</b></p><p>'+safe(m.text)+'</p><small>'+safe(m.channel)+'</small></div>'
-  ).join(""):"<p>No messages found.</p>";
+jobsData.innerHTML=jobs.length?jobs.map(j=>
+'<div class="item"><h3>'+safe(j.service||"Job")+'</h3><p><b>Customer:</b> '+safe(j.customer)+'</p><p><b>Phone:</b> '+safe(j.phone)+'</p><p><b>Address:</b> '+safe(j.address)+'</p><p><b>ZIP:</b> '+safe(j.zip)+'</p><p><b>Status:</b> '+badge(j.status)+'</p><button class="yellow" onclick="updateJobStatus(\''+j.id+'\',\'Dispatched\')">Dispatch</button><button class="green" onclick="updateJobStatus(\''+j.id+'\',\'Completed\')">Complete</button></div>'
+).join(""):"<p>No jobs found.</p>";
+dispatchData.innerHTML=jobs.length?jobs.map(j=>'<div class="item"><h3>'+safe(j.customer)+'</h3><p>'+safe(j.address)+'</p><p>'+badge(j.status)+'</p></div>').join(""):"<p>No dispatch jobs.</p>";
 }
 
 function renderGPS(){
-  gpsData.innerHTML=trucks.filter(t=>t.lastLocation).length?trucks.filter(t=>t.lastLocation).map(t=>
-  '<div class="item"><h3>'+safe(t.truckName||"Truck")+'</h3><p><b>Location:</b> '+safe(JSON.stringify(t.lastLocation))+'</p><p><b>Current Job:</b> '+safe(t.currentJobId||"None")+'</p></div>'
-  ).join(""):"<p>No live GPS updates yet.</p>";
+gpsData.innerHTML=trucks.length?trucks.map(t=>'<div class="item"><h3>'+safe(t.truckName)+'</h3><p><b>GPS:</b> '+safe(t.lat||"No lat")+', '+safe(t.lng||"No lng")+'</p><p><b>Updated:</b> '+safe(t.gpsUpdated||"No update")+'</p></div>').join(""):"<p>No GPS records.</p>";
+}
+
+function renderMessages(){
+messagesData.innerHTML=messages.length?messages.map(m=>'<div class="item"><p><b>'+safe(m.from||"Master")+':</b> '+safe(m.text)+'</p><p><small>'+safe(m.to)+'</small></p></div>').join(""):"<p>No messages found.</p>";
 }
 
 function renderTickets(){
-  ticketsData.innerHTML=tickets.length?tickets.map(t=>
-  '<div class="item"><h3>'+safe(t.type||"Support Ticket")+'</h3>'+
-  '<p><b>Name:</b> '+safe(t.name)+'</p>'+
-  '<p><b>Email:</b> '+safe(t.email)+'</p>'+
-  '<p><b>Phone:</b> '+safe(t.phone)+'</p>'+
-  '<p><b>Issue:</b> '+safe(t.issue)+'</p>'+
-  '<p><b>Status:</b> '+badge(t.status||"Open")+'</p>'+
-  '<textarea id="note-'+t.id+'" placeholder="Resolution notes">'+safe(t.resolution||"")+'</textarea>'+
-  '<button class="green" onclick="resolveTicket(\''+t.id+'\')">Resolve Ticket</button>'+
-  '<button class="yellow" onclick="reopenTicket(\''+t.id+'\')">Reopen Ticket</button></div>'
-  ).join(""):"<p>No tickets found.</p>";
+ticketsData.innerHTML=tickets.length?tickets.map(t=>'<div class="item"><h3>'+safe(t.type||"Ticket")+'</h3><p>'+safe(t.issue)+'</p><p>'+badge(t.status||"Open")+'</p><textarea id="note-'+t.id+'">'+safe(t.resolution||"")+'</textarea><button class="green" onclick="resolveTicket(\''+t.id+'\')">Resolve</button></div>').join(""):"<p>No tickets found.</p>";
 }
 
 function renderEmployees(){
-  employeeData.innerHTML=employees.length?employees.map(e=>
-  '<div class="item"><p><b>Email:</b> '+safe(e.email)+'</p><p><b>Role:</b> '+safe(e.role)+'</p></div>'
-  ).join(""):"<p>No employees found.</p>";
+employeeData.innerHTML=employees.length?employees.map(e=>'<div class="item"><p>'+safe(e.email)+' - '+safe(e.role)+'</p></div>').join(""):"<p>No employees found.</p>";
 }
 
 function renderAll(){
- renderCounts();renderDashboard();renderApplications();renderCustomers();renderPartners();
- renderTrucks();renderJobs();renderMessages();renderGPS();renderTickets();renderEmployees();
+renderCounts();renderSelectors();renderDashboard();renderApplications();renderCustomers();renderPartners();renderTrucks();renderJobs();renderGPS();renderMessages();renderTickets();renderEmployees();
 }
 
 function listen(col,setter){
-  db.collection(col).onSnapshot(function(snap){
-    setter(snap.docs.map(d=>({id:d.id,...d.data()})));
-    renderAll();
-  },function(err){
-    dashboardData.innerHTML='<div class="notice">Firestore read error: '+safe(err.message)+'</div>';
-  });
+db.collection(col).onSnapshot(snap=>{setter(snap.docs.map(d=>({id:d.id,...d.data()})));renderAll();},err=>{dashboardData.innerHTML='<div class="notice">Firestore error: '+safe(err.message)+'</div>';});
 }
 
-function approveApplication(id){
-  const a=applications.find(x=>x.id===id);
-  if(!a)return;
-  const username=String(a.business||"partner").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,14);
-  const password="partner"+Date.now().toString().slice(-5);
-
-  db.collection("partners").add({
-    applicationId:id,business:a.business||"",owner:a.owner||"",email:a.email||"",phone:a.phone||"",
-    zip:a.zip||"",serviceZips:a.serviceZips||"",services:a.services||"",username,password,active:true,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(()=>db.collection("partnerApplications").doc(id).update({
-    status:"Approved",approvedAt:firebase.firestore.FieldValue.serverTimestamp()
-  })).then(()=>alert("Partner approved. Login: "+username+" / "+password));
-}
-
-function markApplication(id,status){
-  db.collection("partnerApplications").doc(id).update({status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-}
-
-function togglePartner(id,value){
-  db.collection("partners").doc(id).update({active:value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-}
-
-function resolveTicket(id){
-  const note=document.getElementById("note-"+id).value;
-  db.collection("supportTickets").doc(id).update({status:"Closed",resolution:note,resolvedAt:firebase.firestore.FieldValue.serverTimestamp()});
-}
-
-function reopenTicket(id){
-  db.collection("supportTickets").doc(id).update({status:"Open",updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-}
+function addCustomer(){db.collection("customers").add({name:cName.value,phone:cPhone.value,email:cEmail.value,address:cAddress.value,zip:cZip.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()});cName.value=cPhone.value=cEmail.value=cAddress.value=cZip.value="";}
+function addPartner(){db.collection("partners").add({business:pBusiness.value,owner:pOwner.value,phone:pPhone.value,email:pEmail.value,serviceZips:pZips.value,active:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});pBusiness.value=pOwner.value=pPhone.value=pEmail.value=pZips.value="";}
+function addTruck(){db.collection("trucks").add({truckName:tName.value,driver:tDriver.value,phone:tPhone.value,partnerId:tPartner.value,available:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});tName.value=tDriver.value=tPhone.value="";}
+function addJob(){db.collection("jobs").add({customer:jCustomer.value,phone:jPhone.value,address:jAddress.value,zip:jZip.value,service:jService.value,partnerId:jPartner.value,truckId:jTruck.value,status:"Pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});jCustomer.value=jPhone.value=jAddress.value=jZip.value=jService.value="";}
+function sendMessage(){db.collection("messages").add({from:"Master",to:mTo.value,text:mText.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()});mTo.value=mText.value="";}
+function togglePartner(id,val){db.collection("partners").doc(id).update({active:val});}
+function toggleTruck(id,val){db.collection("trucks").doc(id).update({available:val});}
+function updateJobStatus(id,status){db.collection("jobs").doc(id).update({status:status});}
+function resolveTicket(id){db.collection("supportTickets").doc(id).update({status:"Closed",resolution:document.getElementById("note-"+id).value});}
+function updateApplication(id,status){db.collection("partnerApplications").doc(id).update({status:status});}
+function approveApplication(id){const a=applications.find(x=>x.id===id);if(!a)return;db.collection("partners").add({business:a.business||"",owner:a.owner||"",email:a.email||"",phone:a.phone||"",serviceZips:a.serviceZips||"",active:true}).then(()=>db.collection("partnerApplications").doc(id).update({status:"Approved"}));}
 
 function createEmployee(){
-  const email=empEmail.value.trim();
-  const password=empPassword.value.trim();
-  const role=empRole.value;
-  if(!email||!password){alert("Email and password required.");return;}
-  auth.createUserWithEmailAndPassword(email,password).then(cred=>{
-    return db.collection("users").doc(cred.user.uid).set({email,role,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-  }).then(()=>{alert("Employee created.");empEmail.value="";empPassword.value="";});
+if(!empEmail.value||!empPassword.value){alert("Email and password required.");return;}
+auth.createUserWithEmailAndPassword(empEmail.value,empPassword.value).then(cred=>db.collection("users").doc(cred.user.uid).set({email:empEmail.value,role:empRole.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{empEmail.value="";empPassword.value="";alert("Employee created.");});
 }
 
-auth.onAuthStateChanged(function(user){
-  if(!user){window.location.href="./index.html";return;}
-  listen("customers",data=>customers=data);
-  listen("partners",data=>partners=data);
-  listen("trucks",data=>trucks=data);
-  listen("jobs",data=>jobs=data);
-  listen("messages",data=>messages=data);
-  listen("supportTickets",data=>tickets=data);
-  listen("partnerApplications",data=>applications=data);
-  listen("users",data=>employees=data);
+auth.onAuthStateChanged(user=>{
+if(!user){location.href="./index.html";return;}
+listen("customers",d=>customers=d);
+listen("partners",d=>partners=d);
+listen("trucks",d=>trucks=d);
+listen("jobs",d=>jobs=d);
+listen("messages",d=>messages=d);
+listen("supportTickets",d=>tickets=d);
+listen("partnerApplications",d=>applications=d);
+listen("users",d=>employees=d);
 });
 </script>
 
