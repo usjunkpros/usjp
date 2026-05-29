@@ -9,9 +9,10 @@
 body{background:#eef2f7;color:#111827}
 .topbar{background:#050505;color:white;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #d71920}
 .logo{font-size:26px;font-weight:900}.logo span{color:#1d70c9}
-.header{background:linear-gradient(90deg,#0b559f,#022b58);color:white;padding:30px 22px}
+.header{background:linear-gradient(90deg,#0b559f,#022b58);color:white;padding:28px 22px}
 .header h1{font-size:26px;margin-bottom:6px}.header p{font-size:14px;opacity:.9}
 .container{width:94%;max-width:1300px;margin:22px auto}
+.version{font-size:12px;background:#e0f2fe;color:#075985;padding:10px;border-radius:10px;margin-bottom:14px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
 .card{background:white;border-radius:16px;padding:18px;box-shadow:0 4px 14px rgba(0,0,0,.08);margin-bottom:16px}
 .stat{font-size:30px;font-weight:900;color:#0b559f}
@@ -41,6 +42,8 @@ textarea{min-height:85px}
 </div>
 
 <div class="container">
+<div class="version">MASTER.HTML UPDATED VERSION: full controls + Firebase compat + working section buttons</div>
+<div id="authBox" class="notice">Checking employee session...</div>
 
 <div class="stats">
   <div class="card"><h3>Customers</h3><div class="stat" id="customerCount">0</div></div>
@@ -66,7 +69,7 @@ textarea{min-height:85px}
 </div>
 
 <section id="dashboard" class="section active">
-<div class="card"><h2>Dashboard</h2><div id="dashboardData" class="notice">Loading cloud data...</div></div>
+<div class="card"><h2>Dashboard</h2><div id="dashboardData" class="notice">Dashboard ready.</div></div>
 </section>
 
 <section id="applications" class="section">
@@ -111,6 +114,8 @@ textarea{min-height:85px}
 <input id="tDriver" placeholder="Driver / Crew Lead">
 <input id="tPhone" placeholder="Driver Phone">
 <select id="tPartner"></select>
+<input id="tLat" placeholder="Latitude">
+<input id="tLng" placeholder="Longitude">
 </div>
 <button class="green" onclick="addTruck()">Add Truck</button>
 </div>
@@ -139,10 +144,7 @@ textarea{min-height:85px}
 </section>
 
 <section id="gps" class="section">
-<div class="card">
-<h2>GPS Tracking Records</h2>
-<div id="gpsData"></div>
-</div>
+<div class="card"><h2>GPS Tracking Records</h2><div id="gpsData"></div></div>
 </section>
 
 <section id="messages" class="section">
@@ -171,7 +173,6 @@ textarea{min-height:85px}
 </section>
 
 </div>
-
 <div class="footer">US Junk Pros • Master Portal Control Center</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -179,7 +180,7 @@ textarea{min-height:85px}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig={
+var firebaseConfig={
 apiKey:"AIzaSyBsjuByq1OY2JmWXx2FjmnC6jyXqi7OpkE",
 authDomain:"us-junk-pros.firebaseapp.com",
 projectId:"us-junk-pros",
@@ -190,84 +191,105 @@ measurementId:"G-JY6GPJ7Z8G"
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth=firebase.auth();
-const db=firebase.firestore();
+var auth=firebase.auth();
+var db=firebase.firestore();
 
-let customers=[],partners=[],trucks=[],jobs=[],messages=[],tickets=[],applications=[],employees=[];
+var customers=[],partners=[],trucks=[],jobs=[],messages=[],tickets=[],applications=[],employees=[];
+var firebaseReady=false;
 
-function safe(v){return String(v||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function safe(v){return String(v||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]})}
 function badge(v){return '<span class="badge">'+safe(v||"Pending")+'</span>'}
 
 function showSection(id){
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+var sections=document.querySelectorAll(".section");
+for(var i=0;i<sections.length;i++){sections[i].classList.remove("active")}
 document.getElementById(id).classList.add("active");
+window.scrollTo(0,0);
 }
 
-function logout(){auth.signOut().then(()=>location.href="./index.html")}
+function logout(){auth.signOut().then(function(){location.href="./index.html"})}
+
+function requireReady(){if(!firebaseReady){alert("Firebase is not connected yet. Log in first, then try again.");return false}return true}
 
 function renderCounts(){
-customerCount.innerText=customers.length;
-partnerCount.innerText=partners.length;
-truckCount.innerText=trucks.length;
-jobCount.innerText=jobs.length;
-ticketCount.innerText=tickets.filter(t=>t.status!=="Closed").length;
+document.getElementById("customerCount").innerText=customers.length;
+document.getElementById("partnerCount").innerText=partners.length;
+document.getElementById("truckCount").innerText=trucks.length;
+document.getElementById("jobCount").innerText=jobs.length;
+document.getElementById("ticketCount").innerText=tickets.filter(function(t){return t.status!=="Closed"}).length;
 }
 
 function renderSelectors(){
-tPartner.innerHTML='<option value="">Assign Partner</option>'+partners.map(p=>'<option value="'+p.id+'">'+safe(p.business)+'</option>').join("");
-jPartner.innerHTML='<option value="">Assign Partner</option>'+partners.map(p=>'<option value="'+p.id+'">'+safe(p.business)+'</option>').join("");
-jTruck.innerHTML='<option value="">Assign Truck</option>'+trucks.map(t=>'<option value="'+t.id+'">'+safe(t.truckName||t.driver)+'</option>').join("");
+var partnerOptions='<option value="">Assign Partner</option>';
+for(var i=0;i<partners.length;i++){partnerOptions+='<option value="'+partners[i].id+'">'+safe(partners[i].business)+'</option>'}
+document.getElementById("tPartner").innerHTML=partnerOptions;
+document.getElementById("jPartner").innerHTML=partnerOptions;
+
+var truckOptions='<option value="">Assign Truck</option>';
+for(var j=0;j<trucks.length;j++){truckOptions+='<option value="'+trucks[j].id+'">'+safe(trucks[j].truckName||trucks[j].driver)+'</option>'}
+document.getElementById("jTruck").innerHTML=truckOptions;
 }
 
 function renderDashboard(){
-dashboardData.innerHTML="<b>Cloud connected.</b><br><br>Active Jobs: "+jobs.length+"<br>Available Trucks: "+trucks.filter(t=>t.available!==false).length+"<br>Partners: "+partners.length+"<br>Open Tickets: "+tickets.filter(t=>t.status!=='Closed').length;
+document.getElementById("dashboardData").innerHTML="<b>Cloud connected.</b><br><br>Active Jobs: "+jobs.length+"<br>Available Trucks: "+trucks.filter(function(t){return t.available!==false}).length+"<br>Partners: "+partners.length+"<br>Open Tickets: "+tickets.filter(function(t){return t.status!=='Closed'}).length;
 }
 
 function renderApplications(){
-applicationsData.innerHTML=applications.length?applications.map(a=>
-'<div class="item"><h3>'+safe(a.business||"Application")+'</h3><p><b>Owner:</b> '+safe(a.owner)+'</p><p><b>Email:</b> '+safe(a.email)+'</p><p><b>Phone:</b> '+safe(a.phone)+'</p><p><b>Status:</b> '+badge(a.status)+'</p><button class="green" onclick="approveApplication(\''+a.id+'\')">Approve</button><button class="red" onclick="updateApplication(\''+a.id+'\',\'Rejected\')">Reject</button></div>'
-).join(""):"<p>No applications found.</p>";
+document.getElementById("applicationsData").innerHTML=applications.length?applications.map(function(a){
+return '<div class="item"><h3>'+safe(a.business||"Application")+'</h3><p><b>Owner:</b> '+safe(a.owner)+'</p><p><b>Email:</b> '+safe(a.email)+'</p><p><b>Phone:</b> '+safe(a.phone)+'</p><p><b>Status:</b> '+badge(a.status)+'</p><button class="green" onclick="approveApplication(\''+a.id+'\')">Approve</button><button class="red" onclick="updateApplication(\''+a.id+'\',\'Rejected\')">Reject</button></div>'
+}).join(""):"<p>No applications found.</p>";
 }
 
 function renderCustomers(){
-customersData.innerHTML=customers.length?customers.map(c=>
-'<div class="item"><h3>'+safe(c.name)+'</h3><p><b>Phone:</b> '+safe(c.phone)+'</p><p><b>Email:</b> '+safe(c.email)+'</p><p><b>Address:</b> '+safe(c.address)+'</p><p><b>ZIP:</b> '+safe(c.zip)+'</p></div>'
-).join(""):"<p>No customers found.</p>";
+document.getElementById("customersData").innerHTML=customers.length?customers.map(function(c){
+return '<div class="item"><h3>'+safe(c.name)+'</h3><p><b>Phone:</b> '+safe(c.phone)+'</p><p><b>Email:</b> '+safe(c.email)+'</p><p><b>Address:</b> '+safe(c.address)+'</p><p><b>ZIP:</b> '+safe(c.zip)+'</p></div>'
+}).join(""):"<p>No customers found.</p>";
 }
 
 function renderPartners(){
-partnersData.innerHTML=partners.length?partners.map(p=>
-'<div class="item"><h3>'+safe(p.business)+'</h3><p><b>Owner:</b> '+safe(p.owner)+'</p><p><b>Phone:</b> '+safe(p.phone)+'</p><p><b>Email:</b> '+safe(p.email)+'</p><p><b>ZIPs:</b> '+safe(p.serviceZips)+'</p><p><b>Status:</b> '+badge(p.active===false?"Inactive":"Active")+'</p><button onclick="togglePartner(\''+p.id+'\','+(p.active===false?'true':'false')+')">'+(p.active===false?"Activate":"Deactivate")+'</button></div>'
-).join(""):"<p>No partners found.</p>";
+document.getElementById("partnersData").innerHTML=partners.length?partners.map(function(p){
+return '<div class="item"><h3>'+safe(p.business)+'</h3><p><b>Owner:</b> '+safe(p.owner)+'</p><p><b>Phone:</b> '+safe(p.phone)+'</p><p><b>Email:</b> '+safe(p.email)+'</p><p><b>ZIPs:</b> '+safe(p.serviceZips)+'</p><p><b>Status:</b> '+badge(p.active===false?"Inactive":"Active")+'</p><button onclick="togglePartner(\''+p.id+'\','+(p.active===false?'true':'false')+')">'+(p.active===false?"Activate":"Deactivate")+'</button></div>'
+}).join(""):"<p>No partners found.</p>";
 }
 
 function renderTrucks(){
-trucksData.innerHTML=trucks.length?trucks.map(t=>
-'<div class="item"><h3>'+safe(t.truckName)+'</h3><p><b>Driver:</b> '+safe(t.driver)+'</p><p><b>Phone:</b> '+safe(t.phone)+'</p><p><b>Status:</b> '+badge(t.available===false?"Busy":"Available")+'</p><p><b>Current Job:</b> '+safe(t.currentJobId||"None")+'</p><button onclick="toggleTruck(\''+t.id+'\','+(t.available===false?'true':'false')+')">'+(t.available===false?"Mark Available":"Mark Busy")+'</button></div>'
-).join(""):"<p>No trucks found.</p>";
+document.getElementById("trucksData").innerHTML=trucks.length?trucks.map(function(t){
+return '<div class="item"><h3>'+safe(t.truckName)+'</h3><p><b>Driver:</b> '+safe(t.driver)+'</p><p><b>Phone:</b> '+safe(t.phone)+'</p><p><b>Status:</b> '+badge(t.available===false?"Busy":"Available")+'</p><p><b>GPS:</b> '+safe(t.lat)+', '+safe(t.lng)+'</p><button onclick="toggleTruck(\''+t.id+'\','+(t.available===false?'true':'false')+')">'+(t.available===false?"Mark Available":"Mark Busy")+'</button></div>'
+}).join(""):"<p>No trucks found.</p>";
 }
 
 function renderJobs(){
-jobsData.innerHTML=jobs.length?jobs.map(j=>
-'<div class="item"><h3>'+safe(j.service||"Job")+'</h3><p><b>Customer:</b> '+safe(j.customer)+'</p><p><b>Phone:</b> '+safe(j.phone)+'</p><p><b>Address:</b> '+safe(j.address)+'</p><p><b>ZIP:</b> '+safe(j.zip)+'</p><p><b>Status:</b> '+badge(j.status)+'</p><button class="yellow" onclick="updateJobStatus(\''+j.id+'\',\'Dispatched\')">Dispatch</button><button class="green" onclick="updateJobStatus(\''+j.id+'\',\'Completed\')">Complete</button></div>'
-).join(""):"<p>No jobs found.</p>";
-dispatchData.innerHTML=jobs.length?jobs.map(j=>'<div class="item"><h3>'+safe(j.customer)+'</h3><p>'+safe(j.address)+'</p><p>'+badge(j.status)+'</p></div>').join(""):"<p>No dispatch jobs.</p>";
+document.getElementById("jobsData").innerHTML=jobs.length?jobs.map(function(j){
+return '<div class="item"><h3>'+safe(j.service||"Job")+'</h3><p><b>Customer:</b> '+safe(j.customer)+'</p><p><b>Phone:</b> '+safe(j.phone)+'</p><p><b>Address:</b> '+safe(j.address)+'</p><p><b>ZIP:</b> '+safe(j.zip)+'</p><p><b>Status:</b> '+badge(j.status)+'</p><button class="yellow" onclick="updateJobStatus(\''+j.id+'\',\'Dispatched\')">Dispatch</button><button class="green" onclick="updateJobStatus(\''+j.id+'\',\'Completed\')">Complete</button></div>'
+}).join(""):"<p>No jobs found.</p>";
+
+document.getElementById("dispatchData").innerHTML=jobs.length?jobs.map(function(j){
+return '<div class="item"><h3>'+safe(j.customer)+'</h3><p>'+safe(j.address)+'</p><p>'+badge(j.status)+'</p></div>'
+}).join(""):"<p>No dispatch jobs.</p>";
 }
 
 function renderGPS(){
-gpsData.innerHTML=trucks.length?trucks.map(t=>'<div class="item"><h3>'+safe(t.truckName)+'</h3><p><b>GPS:</b> '+safe(t.lat||"No lat")+', '+safe(t.lng||"No lng")+'</p><p><b>Updated:</b> '+safe(t.gpsUpdated||"No update")+'</p></div>').join(""):"<p>No GPS records.</p>";
+document.getElementById("gpsData").innerHTML=trucks.length?trucks.map(function(t){
+return '<div class="item"><h3>'+safe(t.truckName)+'</h3><p><b>GPS:</b> '+safe(t.lat||"No lat")+', '+safe(t.lng||"No lng")+'</p><p><b>Updated:</b> '+safe(t.gpsUpdated||"No update")+'</p></div>'
+}).join(""):"<p>No GPS records.</p>";
 }
 
 function renderMessages(){
-messagesData.innerHTML=messages.length?messages.map(m=>'<div class="item"><p><b>'+safe(m.from||"Master")+':</b> '+safe(m.text)+'</p><p><small>'+safe(m.to)+'</small></p></div>').join(""):"<p>No messages found.</p>";
+document.getElementById("messagesData").innerHTML=messages.length?messages.map(function(m){
+return '<div class="item"><p><b>'+safe(m.from||"Master")+':</b> '+safe(m.text)+'</p><p><small>'+safe(m.to)+'</small></p></div>'
+}).join(""):"<p>No messages found.</p>";
 }
 
 function renderTickets(){
-ticketsData.innerHTML=tickets.length?tickets.map(t=>'<div class="item"><h3>'+safe(t.type||"Ticket")+'</h3><p>'+safe(t.issue)+'</p><p>'+badge(t.status||"Open")+'</p><textarea id="note-'+t.id+'">'+safe(t.resolution||"")+'</textarea><button class="green" onclick="resolveTicket(\''+t.id+'\')">Resolve</button></div>').join(""):"<p>No tickets found.</p>";
+document.getElementById("ticketsData").innerHTML=tickets.length?tickets.map(function(t){
+return '<div class="item"><h3>'+safe(t.type||"Ticket")+'</h3><p>'+safe(t.issue)+'</p><p>'+badge(t.status||"Open")+'</p><textarea id="note-'+t.id+'">'+safe(t.resolution||"")+'</textarea><button class="green" onclick="resolveTicket(\''+t.id+'\')">Resolve</button></div>'
+}).join(""):"<p>No tickets found.</p>";
 }
 
 function renderEmployees(){
-employeeData.innerHTML=employees.length?employees.map(e=>'<div class="item"><p>'+safe(e.email)+' - '+safe(e.role)+'</p></div>').join(""):"<p>No employees found.</p>";
+document.getElementById("employeeData").innerHTML=employees.length?employees.map(function(e){
+return '<div class="item"><p>'+safe(e.email)+' - '+safe(e.role)+'</p></div>'
+}).join(""):"<p>No employees found.</p>";
 }
 
 function renderAll(){
@@ -275,36 +297,40 @@ renderCounts();renderSelectors();renderDashboard();renderApplications();renderCu
 }
 
 function listen(col,setter){
-db.collection(col).onSnapshot(snap=>{setter(snap.docs.map(d=>({id:d.id,...d.data()})));renderAll();},err=>{dashboardData.innerHTML='<div class="notice">Firestore error: '+safe(err.message)+'</div>';});
+db.collection(col).onSnapshot(function(snap){
+setter(snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}));
+renderAll();
+},function(err){
+document.getElementById("authBox").innerHTML="Firestore error: "+safe(err.message);
+});
 }
 
-function addCustomer(){db.collection("customers").add({name:cName.value,phone:cPhone.value,email:cEmail.value,address:cAddress.value,zip:cZip.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()});cName.value=cPhone.value=cEmail.value=cAddress.value=cZip.value="";}
-function addPartner(){db.collection("partners").add({business:pBusiness.value,owner:pOwner.value,phone:pPhone.value,email:pEmail.value,serviceZips:pZips.value,active:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});pBusiness.value=pOwner.value=pPhone.value=pEmail.value=pZips.value="";}
-function addTruck(){db.collection("trucks").add({truckName:tName.value,driver:tDriver.value,phone:tPhone.value,partnerId:tPartner.value,available:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});tName.value=tDriver.value=tPhone.value="";}
-function addJob(){db.collection("jobs").add({customer:jCustomer.value,phone:jPhone.value,address:jAddress.value,zip:jZip.value,service:jService.value,partnerId:jPartner.value,truckId:jTruck.value,status:"Pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});jCustomer.value=jPhone.value=jAddress.value=jZip.value=jService.value="";}
-function sendMessage(){db.collection("messages").add({from:"Master",to:mTo.value,text:mText.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()});mTo.value=mText.value="";}
-function togglePartner(id,val){db.collection("partners").doc(id).update({active:val});}
-function toggleTruck(id,val){db.collection("trucks").doc(id).update({available:val});}
-function updateJobStatus(id,status){db.collection("jobs").doc(id).update({status:status});}
-function resolveTicket(id){db.collection("supportTickets").doc(id).update({status:"Closed",resolution:document.getElementById("note-"+id).value});}
-function updateApplication(id,status){db.collection("partnerApplications").doc(id).update({status:status});}
-function approveApplication(id){const a=applications.find(x=>x.id===id);if(!a)return;db.collection("partners").add({business:a.business||"",owner:a.owner||"",email:a.email||"",phone:a.phone||"",serviceZips:a.serviceZips||"",active:true}).then(()=>db.collection("partnerApplications").doc(id).update({status:"Approved"}));}
+function addCustomer(){if(!requireReady())return;db.collection("customers").add({name:cName.value,phone:cPhone.value,email:cEmail.value,address:cAddress.value,zip:cZip.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()});cName.value=cPhone.value=cEmail.value=cAddress.value=cZip.value=""}
+function addPartner(){if(!requireReady())return;db.collection("partners").add({business:pBusiness.value,owner:pOwner.value,phone:pPhone.value,email:pEmail.value,serviceZips:pZips.value,active:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});pBusiness.value=pOwner.value=pPhone.value=pEmail.value=pZips.value=""}
+function addTruck(){if(!requireReady())return;db.collection("trucks").add({truckName:tName.value,driver:tDriver.value,phone:tPhone.value,partnerId:tPartner.value,lat:tLat.value,lng:tLng.value,available:true,gpsUpdated:new Date().toLocaleString(),createdAt:firebase.firestore.FieldValue.serverTimestamp()});tName.value=tDriver.value=tPhone.value=tLat.value=tLng.value=""}
+function addJob(){if(!requireReady())return;db.collection("jobs").add({customer:jCustomer.value,phone:jPhone.value,address:jAddress.value,zip:jZip.value,service:jService.value,partnerId:jPartner.value,truckId:jTruck.value,status:"Pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});jCustomer.value=jPhone.value=jAddress.value=jZip.value=jService.value=""}
+function sendMessage(){if(!requireReady())return;db.collection("messages").add({from:"Master",to:mTo.value,text:mText.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()});mTo.value=mText.value=""}
+function togglePartner(id,val){if(!requireReady())return;db.collection("partners").doc(id).update({active:val})}
+function toggleTruck(id,val){if(!requireReady())return;db.collection("trucks").doc(id).update({available:val})}
+function updateJobStatus(id,status){if(!requireReady())return;db.collection("jobs").doc(id).update({status:status})}
+function resolveTicket(id){if(!requireReady())return;db.collection("supportTickets").doc(id).update({status:"Closed",resolution:document.getElementById("note-"+id).value})}
+function updateApplication(id,status){if(!requireReady())return;db.collection("partnerApplications").doc(id).update({status:status})}
+function approveApplication(id){if(!requireReady())return;var a=applications.find(function(x){return x.id===id});if(!a)return;db.collection("partners").add({business:a.business||"",owner:a.owner||"",email:a.email||"",phone:a.phone||"",serviceZips:a.serviceZips||"",active:true}).then(function(){return db.collection("partnerApplications").doc(id).update({status:"Approved"})})}
+function createEmployee(){if(!requireReady())return;if(!empEmail.value||!empPassword.value){alert("Email and password required.");return}auth.createUserWithEmailAndPassword(empEmail.value,empPassword.value).then(function(cred){return db.collection("users").doc(cred.user.uid).set({email:empEmail.value,role:empRole.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()})}).then(function(){empEmail.value="";empPassword.value="";alert("Employee created.")})}
 
-function createEmployee(){
-if(!empEmail.value||!empPassword.value){alert("Email and password required.");return;}
-auth.createUserWithEmailAndPassword(empEmail.value,empPassword.value).then(cred=>db.collection("users").doc(cred.user.uid).set({email:empEmail.value,role:empRole.value,createdAt:firebase.firestore.FieldValue.serverTimestamp()})).then(()=>{empEmail.value="";empPassword.value="";alert("Employee created.");});
-}
-
-auth.onAuthStateChanged(user=>{
-if(!user){location.href="./index.html";return;}
-listen("customers",d=>customers=d);
-listen("partners",d=>partners=d);
-listen("trucks",d=>trucks=d);
-listen("jobs",d=>jobs=d);
-listen("messages",d=>messages=d);
-listen("supportTickets",d=>tickets=d);
-listen("partnerApplications",d=>applications=d);
-listen("users",d=>employees=d);
+auth.onAuthStateChanged(function(user){
+if(!user){document.getElementById("authBox").innerHTML='Not logged in. <button onclick="location.href=\'./index.html\'">Go to Login</button>';return}
+firebaseReady=true;
+document.getElementById("authBox").innerHTML="Logged in as "+safe(user.email)+". Firebase connected.";
+listen("customers",function(d){customers=d});
+listen("partners",function(d){partners=d});
+listen("trucks",function(d){trucks=d});
+listen("jobs",function(d){jobs=d});
+listen("messages",function(d){messages=d});
+listen("supportTickets",function(d){tickets=d});
+listen("partnerApplications",function(d){applications=d});
+listen("users",function(d){employees=d});
+renderAll();
 });
 </script>
 
