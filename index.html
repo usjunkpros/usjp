@@ -3,347 +3,187 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>USJP Master Portal Control Center</title>
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,Helvetica,sans-serif;
-}
-
-body{
-background:#edf2f7;
-color:#1f2937;
-}
-
-.topbar{
-background:#0b0f19;
-padding:14px 24px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:4px solid #d71920;
-}
-
-.logo{
-font-size:28px;
-font-weight:800;
-color:#fff;
-letter-spacing:.5px;
-}
-
-.logo span{
-color:#3b82f6;
-}
-
-.header{
-background:linear-gradient(90deg,#0f4fa8,#012b66);
-color:white;
-padding:42px 28px;
-}
-
-.header h1{
-font-size:32px;
-font-weight:800;
-margin-bottom:10px;
-}
-
-.header p{
-font-size:16px;
-opacity:.92;
-}
-
-.container{
-width:94%;
-max-width:1200px;
-margin:28px auto;
-}
-
-.card{
-background:white;
-border-radius:18px;
-padding:28px;
-box-shadow:0 4px 18px rgba(0,0,0,.08);
-margin-bottom:24px;
-}
-
-.card h2{
-font-size:24px;
-margin-bottom:22px;
-font-weight:700;
-}
-
-.notice{
-background:#fff7ed;
-border:1px solid #fed7aa;
-border-radius:14px;
-padding:18px;
-margin-bottom:18px;
-line-height:1.6;
-font-size:15px;
-}
-
-input{
-width:100%;
-padding:14px;
-border-radius:12px;
-border:1px solid #cbd5e1;
-font-size:15px;
-margin-bottom:16px;
-}
-
-button{
-border:none;
-border-radius:12px;
-padding:14px 18px;
-font-size:15px;
-font-weight:700;
-cursor:pointer;
-transition:.2s;
-}
-
-.login-btn{
-width:100%;
-background:#16a34a;
-color:white;
-margin-bottom:18px;
-}
-
-.login-btn:hover{
-opacity:.92;
-}
-
-.support-btn{
-width:100%;
-background:#f59e0b;
-color:black;
-margin-top:12px;
-}
-
-.logout-btn{
-background:#dc2626;
-color:white;
-margin-top:24px;
-width:100%;
-}
-
-.portal{
-display:none;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:18px;
-margin-top:24px;
-}
-
-.panel{
-background:#0f4fa8;
-color:white;
-padding:22px;
-border-radius:16px;
-font-size:18px;
-font-weight:700;
-text-align:center;
-box-shadow:0 3px 12px rgba(0,0,0,.12);
-}
-
-.status{
-margin-top:12px;
-font-size:14px;
-font-weight:700;
-}
-
-.success{
-color:#16a34a;
-}
-
-.error{
-color:#dc2626;
-}
-
-.footer{
-text-align:center;
-padding:30px;
-font-size:13px;
-color:#64748b;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{background:#eef2f7;color:#111827}
+.topbar{background:#050505;color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #d71920}
+.logo{font-size:26px;font-weight:900}.logo span{color:#1d70c9}
+.header{background:linear-gradient(90deg,#0b559f,#022b58);color:#fff;padding:32px 22px}
+.header h1{font-size:28px;margin-bottom:8px}.header p{font-size:15px;opacity:.92}
+.container{width:94%;max-width:520px;margin:28px auto}
+.card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:16px;margin:14px 0;line-height:1.5}
+input{width:100%;padding:14px;border:1px solid #cbd5e1;border-radius:12px;margin:8px 0 14px;font-size:15px}
+button{width:100%;border:0;border-radius:12px;padding:14px;font-weight:900;font-size:15px;cursor:pointer;margin:5px 0}
+.green{background:#16a34a;color:white}
+.yellow{background:#f59e0b;color:#111827}
+.status{margin-top:12px;font-weight:800;font-size:14px}
+.error{color:#dc2626}.success{color:#16a34a}
+.support{display:none;margin-top:14px}
+.footer{text-align:center;color:#64748b;font-size:13px;padding:25px}
 </style>
 </head>
 
 <body>
 
 <div class="topbar">
-
-<div class="logo">
-US<span>JP</span>
-</div>
-
-<div style="color:white;font-size:15px;font-weight:600;">
-Master Portal Control Center
-</div>
-
+  <div class="logo">US<span>JP</span></div>
+  <div>Control Center</div>
 </div>
 
 <div class="header">
-<h1>USJP Master Portal Control Center</h1>
-<p>Secure Employee Access System</p>
+  <h1>USJP Master Portal Control Center</h1>
+  <p>Secure Employee Access</p>
 </div>
 
 <div class="container">
+  <div class="card">
+    <h2>Employee Login</h2>
 
-<div class="card" id="loginScreen">
+    <div class="notice">
+      Notice! You must have a USJP Master Portal Control Center employee account to access this system.
+      Employee accounts are created by system administrators.
+    </div>
 
-<h2>Employee Login</h2>
+    <input id="email" type="email" placeholder="Employee Email">
+    <input id="password" type="password" placeholder="Password">
 
-<div class="notice">
-You must have a USJP Master Portal Control Center employee account to access this system.
-Employee accounts are created by authorized system administrators.
+    <button class="green" onclick="login()">System Login</button>
+
+    <div class="notice">
+      Please contact master portal support if you experience login issues.
+      <button class="yellow" onclick="toggleSupport()">Contact Support</button>
+    </div>
+
+    <div id="supportBox" class="support">
+      <input id="supportName" placeholder="Your Name">
+      <input id="supportPhone" placeholder="Your Phone">
+      <input id="supportEmail" placeholder="Your Email">
+      <input id="supportIssue" placeholder="Describe the login issue">
+      <button class="green" onclick="submitSupport()">Submit Support Ticket</button>
+    </div>
+
+    <div id="status" class="status"></div>
+  </div>
 </div>
 
-<input type="email" id="email" placeholder="Employee Email">
+<div class="footer">US Junk Pros • Master Portal Control Center</div>
 
-<input type="password" id="password" placeholder="Password">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-<button class="login-btn" onclick="login()">
-Secure Login
-</button>
+<script>
+var MASTER_URL="./master.html?v=20260528";
 
-<div class="notice">
-Experiencing login problems or access issues?
-</div>
-
-<button class="support-btn">
-Contact Support
-</button>
-
-<div id="status" class="status"></div>
-
-</div>
-
-<div class="portal" id="portalScreen">
-
-<div class="card">
-
-<h2>Operations Dashboard</h2>
-
-<div class="grid">
-
-<div class="panel">Dashboard</div>
-
-<div class="panel">Partner Applications</div>
-
-<div class="panel">Partners</div>
-
-<div class="panel">Jobs</div>
-
-<div class="panel">Dispatch</div>
-
-<div class="panel">GPS Tracking</div>
-
-<div class="panel">Support Tickets</div>
-
-<div class="panel">Employee Accounts</div>
-
-</div>
-
-<button class="logout-btn" onclick="logout()">
-Logout
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="footer">
-US Junk Pros • Master Portal Control Center
-</div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-getAuth,
-signInWithEmailAndPassword,
-signOut,
-onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyBsjuByq1OY2JmWXx2FjmnC6jyXqi7OpkE",
-authDomain: "us-junk-pros.firebaseapp.com",
-projectId: "us-junk-pros",
-storageBucket: "us-junk-pros.firebasestorage.app",
-messagingSenderId: "342886642933",
-appId: "1:342886642933:web:fb5ab4c136834ec72b01bc",
-measurementId: "G-JY6GPJ7Z8G"
-
+var firebaseConfig={
+apiKey:"AIzaSyBsjuByq1OY2JmWXx2FjmnC6jyXqi7OpkE",
+authDomain:"us-junk-pros.firebaseapp.com",
+projectId:"us-junk-pros",
+storageBucket:"us-junk-pros.firebasestorage.app",
+messagingSenderId:"342886642933",
+appId:"1:342886642933:web:fb5ab4c136834ec72b01bc",
+measurementId:"G-JY6GPJ7Z8G"
 };
 
-const app = initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
+var auth=firebase.auth();
+var db=firebase.firestore();
 
-const auth = getAuth(app);
-
-window.login = async function(){
-
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
-
-const status = document.getElementById("status");
-
-status.innerHTML = "Connecting...";
-status.className = "status";
-
-try{
-
-await signInWithEmailAndPassword(auth,email,password);
-
-status.innerHTML = "Access Granted";
-status.className = "status success";
-
-}catch(error){
-
-status.innerHTML = error.message;
-status.className = "status error";
-
+function toggleSupport(){
+  var box=document.getElementById("supportBox");
+  box.style.display=box.style.display==="block"?"none":"block";
 }
 
+function login(){
+  var email=document.getElementById("email").value.trim();
+  var password=document.getElementById("password").value;
+  var status=document.getElementById("status");
+
+  if(!email||!password){
+    status.className="status error";
+    status.innerHTML="Email and password are required.";
+    return;
+  }
+
+  status.className="status";
+  status.innerHTML="Checking employee credentials...";
+
+  auth.signInWithEmailAndPassword(email,password)
+  .then(function(cred){
+    return db.collection("users").doc(cred.user.uid).get();
+  })
+  .then(function(userDoc){
+    if(!userDoc.exists){
+      throw new Error("No employee profile found for this account.");
+    }
+
+    var role=userDoc.data().role;
+
+    if(role!=="master" && role!=="staff"){
+      throw new Error("Access denied. This account is not authorized for the Master Portal Control Center.");
+    }
+
+    status.className="status success";
+    status.innerHTML="Access granted. Loading dashboard...";
+
+    setTimeout(function(){
+      window.location.href=MASTER_URL;
+    },500);
+  })
+  .catch(function(error){
+    status.className="status error";
+    status.innerHTML=error.message;
+  });
 }
 
-window.logout = async function(){
+function submitSupport(){
+  var name=document.getElementById("supportName").value.trim();
+  var phone=document.getElementById("supportPhone").value.trim();
+  var email=document.getElementById("supportEmail").value.trim();
+  var issue=document.getElementById("supportIssue").value.trim();
 
-await signOut(auth);
+  if(!name||!phone||!issue){
+    alert("Name, phone, and issue are required.");
+    return;
+  }
 
+  db.collection("supportTickets").add({
+    type:"Master Portal Login Support",
+    routeTo:"master",
+    name:name,
+    phone:phone,
+    email:email,
+    issue:issue,
+    status:"Open",
+    source:"index.html",
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    alert("Support ticket submitted.");
+    document.getElementById("supportName").value="";
+    document.getElementById("supportPhone").value="";
+    document.getElementById("supportEmail").value="";
+    document.getElementById("supportIssue").value="";
+    toggleSupport();
+  }).catch(function(error){
+    alert("Support ticket failed: "+error.message);
+  });
 }
 
-onAuthStateChanged(auth,(user)=>{
-
-if(user){
-
-document.getElementById("loginScreen").style.display = "none";
-
-document.getElementById("portalScreen").style.display = "block";
-
-}else{
-
-document.getElementById("loginScreen").style.display = "block";
-
-document.getElementById("portalScreen").style.display = "none";
-
-}
-
+auth.onAuthStateChanged(function(user){
+  if(user){
+    db.collection("users").doc(user.uid).get().then(function(userDoc){
+      if(userDoc.exists){
+        var role=userDoc.data().role;
+        if(role==="master" || role==="staff"){
+          window.location.href=MASTER_URL;
+        }
+      }
+    });
+  }
 });
-
 </script>
 
 </body>
